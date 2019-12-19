@@ -1,0 +1,27 @@
+{% extends "template.html" %}
+
+{% block content %}
+    <div id='map' style='width: 800px; height: 600px;'></div>
+    <script>
+    mapboxgl.accessToken = '{{ mapboxkey }}';
+    var map = new mapboxgl.Map({
+        container: 'map',
+        style: 'mapbox://styles/mapbox/light-v9',
+        zoom: 6,
+        center: [55.2708, 25.2048]
+    });
+    map.on('load', function() {
+        map.addSource('sensorlocations', {
+         type: 'geojson',
+         data: {{sensor_locations|safe}}
+        });
+
+        map.addLayer({
+         id: 'sensors',
+         source: 'sensorlocations',
+         type: 'circle',
+      });
+    });
+
+    </script>
+{% endblock content %}

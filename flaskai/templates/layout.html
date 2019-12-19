@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+
+    <head>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.8.0/css/bulma.min.css">
+        <script defer="defer" src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
+
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Demo IoT Website</title>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+        <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,700" rel="stylesheet">
+        <!-- Bulma Version 0.8.x-->
+        <!-- <link rel="stylesheet" href="https://unpkg.com/bulma@0.8.0/css/bulma.min.css" /> -->
+        <!-- <link rel="stylesheet" type="text/css" href="../css/admin.css"> -->
+    </head>
+
+    <body>
+        <!-- Top Hero -->
+        <section class="hero is-info welcome is-small">
+            <div class="hero-body">
+                <div class="container">
+                    <h1 class="title">
+                        Demo IoT Website
+                    </h1>
+                    <h2 class="subtitle">
+                        IoT Simulated Data for Demo Purpose ONLY
+                    </h2>
+                </div>
+            </div>
+        </section>
+
+        <!-- START NAV -->
+        <nav class="navbar has-background-grey-lighter">
+            <div class="container">
+                <div class="navbar-brand">
+                    <a class="navbar-item brand-text" href="../index.html">
+                        Home
+                    </a>
+                    <div class="navbar-burger burger" data-target="navMenu">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                </div>
+                <div id="navMenu" class="navbar-menu">
+                    <div class="navbar-start">
+                        <a class="navbar-item" href="admin.html">
+                            About us
+                        </a>
+                        <a class="navbar-item" href="admin.html">
+                            Contact Us
+                        </a>
+                        <a class="navbar-item" href="admin.html">
+                            Account
+                        </a>
+
+                    </div>
+
+                </div>
+            </div>
+        </nav>
+        <!-- END NAV -->
+        <div class="container">
+            <div class="columns">
+                <div class="column is-3 has-background-grey-dark">
+                    <aside class="menu is-hidden-mobile">
+                        <p class="menu-label">
+                            General
+                        </p>
+                        <ul class="menu-list">
+                            <li>
+                                <a class="is-active is-white">Dashboard</a>
+                            </li>
+                            <li>
+                                <a class="has-text-light">Customers</a>
+                            </li>
+                            <li>
+                                <aclass="has-text-light">Other</a>
+                            </li>
+                        </ul>
+                        <ul class="menu-list">
+                            <li>
+                                <a>Payments</a>
+                            </li>
+                            <li>
+                                <a>Transfers</a>
+                            </li>
+                            <li>
+                                <a>Balance</a>
+                            </li>
+                            <li>
+                                <a>Reports</a>
+                            </li>
+                        </ul>
+                    </aside>
+                </div>
+
+                {% block content %}{% endblock content %}
+            </div>
+        </div>
+        <script async="async" type="text/javascript" src="../js/bulma.js"></script>
+    </body>
+
+</html>

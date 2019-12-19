@@ -1,0 +1,12 @@
+{% extends "layout.html" %}
+
+
+{% block content %}
+    <h1>Artificial intelligence </h1>
+    {{ records }}
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for message in messages: %}
+        {{ message }}
+      {% endfor %}
+    {% endwith %}
+{% endblock content %}

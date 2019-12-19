@@ -1,0 +1,66 @@
+{% extends "layout.html" %}
+
+{% block content %}
+    <h1>Data fitched from the data base </h1>
+
+            <table class="table">
+          <thead>
+            <tr>
+
+              <th scope="col">ID</th>
+              <th scope="col">Date</th>
+              <th scope="col">Open</th>
+              <th scope="col">Low</th>
+              <th scope="col">High</th>
+              <th scope="col">Volume</th>
+            </tr>
+          </thead>
+          <tbody>
+
+    {% for key in results: %}
+            <tr>
+
+              <th scope="row">{{ key }}</th>
+              <td>{{ results[key]['date']}}</td>
+              <td>{{ results[key]['open']}}</td>
+              <td>{{ results[key]['low']}}</td>
+              <td>{{ results[key]['high']}}</td>
+              <td>{{ results[key]['volume']}}</td>
+            </tr>
+
+    {% endfor %}
+          </tbody>
+        </table>
+
+    {% for key in results: %}
+      <p>{{ key }} </p>
+        {% for keytwo in results[key]: %}
+          <p>{{ keytwo }}    {{ results[key][keytwo]}}</p>
+        {% endfor %}
+    {% endfor %}
+
+    <form method="GET" action="" enctype="multipart/form-data">
+      <div class=" col-xs-6 mx-sm-3 mb-2 row">
+        <div class="form-group ">
+          <label for="date">Date</label>
+          <input type="text" class="form-control" id="dat1" aria-describedby="emailHelp" placeholder="Date" readonly value = "{{ form.stockdate.data }}">
+        <div class="form-group">
+          <label for="open">Open</label>
+          <input type="number" class="form-control" id="open1" placeholder="Open" readonly value = "{{ form.openprice.data }}" >
+        </div>
+        <div class="form-group">
+          <label for="low">Low</label>
+          <input type="number" class="form-control" id="low1" placeholder="Low" readonly value = "{{ form.lowprice.data }}">
+        </div>
+        <div class="form-group">
+          <label for="high">High</label>
+          <input type="number" class="form-control" id="high1" placeholder="High" readonly value = "{{ form.highprice.data }}">
+        </div>
+        <div class="form-group">
+          <label for="volume">Volume</label>
+          <input type="number" class="form-control" id="volume1" placeholder="Volum" readonly value = "{{ form.volume.data }}">
+        </div>
+      </div>
+
+    </form>
+{% endblock content %}
