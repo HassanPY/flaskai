@@ -8,6 +8,8 @@ import firebase_admin
 from firebase_admin import db, credentials
 import os
 import flask
+import firebase_admin
+import folium
 
 # imports for Video streaming
 
@@ -28,6 +30,9 @@ firebase_admin.initialize_app(options={'databaseURL': 'https://flaskai-dec7b.fir
 MAPBOX_ACCESS_KEY = 'pk.eyJ1IjoiaGFzc2FuaWgiLCJhIjoiY2pqcjhsZTV1NjNhcjNrdGU3YzRjYXcweSJ9.1oFwx11tzzFVOyAyfojwrg'
 # _ensure_company is internal helper function
 
+# Creat Map Object, Dubai Location 25.2048° N, 55.2708° E
+m = folium.Map(location=[25.2048, 55.2708], zoom_start=10)
+
 
 @app.route("/test")
 def test():
@@ -47,9 +52,33 @@ def dashboard():
 
 @app.route("/map")
 def map():
-    # print(MAPBOX_ACCESS_KEY)
-    sensor_locations = create_stop_locations_details()
-    return render_template('map.html', mapboxkey=MAPBOX_ACCESS_KEY, sensor_locations=sensor_locations)
+
+    rootreference = 'IoT/'
+    # child = 'Robot'
+    ref = rootreference  # + child
+    iots = db.reference(ref)
+    data = iots.get()
+    data_keys = data.keys()
+    # data_values = data.values()
+    # print(type(data_values))
+    for key in data_keys:
+        for _, record in data[key].items():
+            # print(key)
+            # print(record)
+            # print(record['GPS']['lat'], record['GPS']['lon'], record['date'],
+            # record['time'])
+            if 'GPS' in record:
+                lat = record['GPS']['lat']
+                lon = record['GPS']['lon']
+
+                # Create markers
+                folium.Marker([lat, lon],
+                              popup=record,
+                              tooltip=key).add_to(m)
+                # icon=folium.Icon(color='green', icon='wifi')).add_to(m)
+    # Generate Map
+    m.save('flaskai/static/mapfolium.html')
+    return render_template('map.html')
 
 
 @app.route("/about")

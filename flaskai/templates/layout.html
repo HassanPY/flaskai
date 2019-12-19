@@ -62,44 +62,44 @@
             </div>
         </nav>
         <!-- END NAV -->
-        <div class="container">
-            <div class="columns">
-                <div class="column is-3 has-background-grey-dark">
-                    <aside class="menu is-hidden-mobile">
-                        <p class="menu-label">
-                            General
-                        </p>
-                        <ul class="menu-list">
-                            <li>
-                                <a class="is-active is-white">Dashboard</a>
-                            </li>
-                            <li>
-                                <a class="has-text-light">Customers</a>
-                            </li>
-                            <li>
-                                <aclass="has-text-light">Other</a>
-                            </li>
-                        </ul>
-                        <ul class="menu-list">
-                            <li>
-                                <a>Payments</a>
-                            </li>
-                            <li>
-                                <a>Transfers</a>
-                            </li>
-                            <li>
-                                <a>Balance</a>
-                            </li>
-                            <li>
-                                <a>Reports</a>
-                            </li>
-                        </ul>
-                    </aside>
-                </div>
-
-                {% block content %}{% endblock content %}
+        <!-- <div class="container"> -->
+        <div class="columns">
+            <div class="column is-2 has-background-grey-dark">
+                <aside class="menu is-hidden-mobile">
+                    <p class="menu-label">
+                        General
+                    </p>
+                    <ul class="menu-list">
+                        <li>
+                            <a class="is-active is-white">Dashboard</a>
+                        </li>
+                        <li>
+                            <a class="has-text-light">Customers</a>
+                        </li>
+                        <li>
+                            <aclass="has-text-light">Other</a>
+                        </li>
+                    </ul>
+                    <ul class="menu-list">
+                        <li>
+                            <a>Payments</a>
+                        </li>
+                        <li>
+                            <a>Transfers</a>
+                        </li>
+                        <li>
+                            <a>Balance</a>
+                        </li>
+                        <li>
+                            <a>Reports</a>
+                        </li>
+                    </ul>
+                </aside>
             </div>
+
+            {% block content %}{% endblock content %}
         </div>
+        <!-- </div> -->
         <script async="async" type="text/javascript" src="../js/bulma.js"></script>
     </body>
 

@@ -35,7 +35,7 @@ for key in data_keys:
             # Create markers
             folium.Marker([lat, lon],
                           popup=record,
-                          tooltip=key,
-                          icon=folium.Icon(color='green', icon='wifi')).add_to(m)
+                          tooltip=key).add_to(m)
+            # icon=folium.Icon(color='green', icon='wifi')).add_to(m)
 # Generate Map
 m.save('map.html')
