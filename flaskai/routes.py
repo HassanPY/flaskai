@@ -78,7 +78,7 @@ def map():
                 # icon=folium.Icon(color='green', icon='wifi')).add_to(m)
     # Generate Map
     m.save('flaskai/static/mapfolium.html')
-    return render_template('map.html')
+    return render_template('map.html', data_keys=data_keys)
 
 
 @app.route("/about")

@@ -1,8 +1,21 @@
 {% extends "layout.html" %}
 
 {% block content %}
-    <div class="container">
-        <iframe src="{{ url_for('static',filename='mapfolium.html') }}" width="900" height="600"></iframe>
-    </div>
+    <section class="section">
+        <div class="container">
+            <select name="Select IoT Device" method="GET" action="/" style="width: 150px;">
+                {% for key in data_keys %}
+                    <option value="{{key}}" selected="SELECTED">{{key}}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="container">
+            <input type="date" style="width:150px;">
+        </div>
+
+        <div class="container">
+            <iframe src="{{ url_for('static',filename='mapfolium.html') }}" width="800" height="600"></iframe>
+        </div>
+    </section>>
 
 {% endblock content %}
