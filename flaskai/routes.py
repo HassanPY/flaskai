@@ -2,7 +2,7 @@ from datetime import date, time, datetime
 from geojson import Point, Feature, FeatureCollection
 from flaskai import app
 from flaskai.forms import StockPriceForm as form
-from flask import render_template, flash, request, url_for
+from flask import render_template, flash, request, url_for, redirect
 import json
 import firebase_admin
 from firebase_admin import db, credentials
@@ -50,34 +50,61 @@ def dashboard():
     return render_template('dashboard.html')
 
 
-@app.route("/map")
+@app.route("/map", methods=['POST', 'GET'])
 def map():
+    child = ""
+    if request.method == "POST":
 
+        req = request.form
+        child = req.get("Select IoT Device")
+        # print(child)
+        # print(request.url)
+
+        # return redirect(request.url)
     rootreference = 'IoT/'
     # child = 'Robot'
-    ref = rootreference  # + child
+    ref = rootreference
     iots = db.reference(ref)
     data = iots.get()
     data_keys = data.keys()
     # data_values = data.values()
     # print(type(data_values))
-    for key in data_keys:
-        for _, record in data[key].items():
-            # print(key)
-            # print(record)
-            # print(record['GPS']['lat'], record['GPS']['lon'], record['date'],
-            # record['time'])
+    if child == "":
+        for key in data_keys:
+            for _, record in data[key].items():
+                # print(key)
+                # print(record)
+                # print(record['GPS']['lat'], record['GPS']['lon'], record['date'],
+                # record['time'])
+                if 'GPS' in record:
+                    lat = record['GPS']['lat']
+                    lon = record['GPS']['lon']
+                    # Create markers
+                    print(child)
+                    folium.Marker([lat, lon],
+                                  popup=record,
+                                  toolretip=key).add_to(m)
+                    # icon=folium.Icon(color='green', icon='wifi')).add_to(m)
+        m.save('flaskai/static/mapfolium.html')
+    else:
+        print(child)
+
+        mchild = folium.Map(location=[25.2048, 55.2708], zoom_start=10)
+        records = data[child]
+        # print(record['GPS'])
+        for _, record in records.items():
             if 'GPS' in record:
                 lat = record['GPS']['lat']
                 lon = record['GPS']['lon']
 
-                # Create markers
-                folium.Marker([lat, lon],
-                              popup=record,
-                              tooltip=key).add_to(m)
-                # icon=folium.Icon(color='green', icon='wifi')).add_to(m)
+            # Create markers
+            folium.Marker([lat, lon],
+                          popup=record,
+                          toolretip=child).add_to(mchild)
+            # icon=folium.Icon(color='green', icon='wifi')).add_to(m)
     # Generate Map
-    m.save('flaskai/static/mapfolium.html')
+        # mchild.save('flaskai/static/mapfolium.html')
+        mchild.save('flaskai/static/mapfolium.html')
     return render_template('map.html', data_keys=data_keys)
 
 
