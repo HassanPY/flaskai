@@ -57,7 +57,7 @@ def map():
 
         req = request.form
         child = req.get("Select IoT Device")
-        # print(child)
+        print(child)
         # print(request.url)
 
         # return redirect(request.url)
@@ -69,13 +69,10 @@ def map():
     data_keys = data.keys()
     # data_values = data.values()
     # print(type(data_values))
-    if child == "":
+    if (child == "" or child == "All"):
         for key in data_keys:
             for _, record in data[key].items():
-                # print(key)
-                # print(record)
-                # print(record['GPS']['lat'], record['GPS']['lon'], record['date'],
-                # record['time'])
+
                 if 'GPS' in record:
                     lat = record['GPS']['lat']
                     lon = record['GPS']['lon']
@@ -86,8 +83,9 @@ def map():
                                   toolretip=key).add_to(m)
                     # icon=folium.Icon(color='green', icon='wifi')).add_to(m)
         m.save('flaskai/static/mapfolium.html')
+
     else:
-        print(child)
+        # print(child)
 
         mchild = folium.Map(location=[25.2048, 55.2708], zoom_start=10)
         records = data[child]
@@ -105,7 +103,7 @@ def map():
     # Generate Map
         # mchild.save('flaskai/static/mapfolium.html')
         mchild.save('flaskai/static/mapfolium.html')
-    return render_template('map.html', data_keys=data_keys)
+    return render_template('map.html', data_keys=data_keys, child=child)
 
 
 @app.route("/about")
