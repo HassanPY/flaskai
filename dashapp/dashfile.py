@@ -24,6 +24,7 @@ from firebase_admin import db
 import pandas as pd
 from pandas.io.json import json_normalize
 import json
+import csv
 
 
 def Add_Dash(server):
@@ -40,8 +41,8 @@ def Add_Dash(server):
     os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "flaskai/flaskai-dec7b-firebase-adminsdk-9o96s-1b92419593.json"
     firebase_admin.initialize_app(options={'databaseURL': 'https://flaskai-dec7b.firebaseio.com'})
 
-    # Fetch Data from firebase online server
-    data = Fetch_Data_FBserver()
+    # Fetch Data from firebase online server to pandas df
+    df = Fetch_Data_FBserver()
     # print(data.columns.values)
 
     # Create Dash Layout
@@ -55,6 +56,24 @@ def Add_Dash(server):
         html.Div(children='''
             Dash: A web application framework for Python.
         '''),
+        html.Div([
+            html.Div(
+                dcc.Dropdown(
+                    id='iotdevice',
+                    options=[{'label': name, 'value': name} for name in df['IOT Device'].unique()]
+
+                    # options=[
+                    #     {'label': 'New York City', 'value': 'NYC'},
+                    #     {'label': 'Montreal', 'value': 'MTL'},
+                    #     {'label': 'All', 'value': 'All'}
+                    # ],
+                    # value='All'
+                ),
+                className='three columns'
+            )
+        ],
+            className='row'
+        ),
         html.Div([
             html.Div(
                 dcc.Graph(
@@ -107,69 +126,70 @@ def Fetch_Data_FBserver():
                 line = key + "," + unique_trs_id
                 f.write(line+"\n")
 
-    with open('./data/details.csv', 'w') as df:
-        dheader = "unique_trs_id"+','+"Latitude"+","+"Longitude"+","+"BatteryisCharging"+"," + "Battery Percentage" + \
-            ","+"CO2"+","+"Preasure Hg"+","+"Humidity %"+"," + \
-                "Temperature C"+"," + "Speed KM"+","+"Date"+","+"Time"
-        df.write(dheader+"\n")
+    with open('./data/details.csv', 'w') as detf:
 
-        dline = {'unique_trs_id': '', 'lat': '', 'lon': '', 'isCharging': '', 'percentage': '',
+        dline = {'Unique_Trs_ID': '', 'lat': '', 'lon': '', 'isCharging': '', 'percentage': '',
                  'CO2 %': '', 'Preasure Hg': '', 'Humidity %': '', 'Temperature C': '', 'Speed KM': '', 'date': '', 'time': ''}
-
-        def write_to_csv_file():
-            [df.write('{0},'.format(value)) for key, value in dline.items()]
-            df.write("\n")
-
+        # write the header to CSV file
+        w = csv.DictWriter(detf, dline.keys())
+        w.writeheader()
         for key in data_keys:
-            for unique_trs_id, record in data[key].items():
-                dline['unique_trs_id'] = unique_trs_id
+            for Unique_Trs_ID, record in data[key].items():
+                dline['Unique_Trs_ID'] = Unique_Trs_ID
                 if 'GPS' in record:
                     dline['lat'] = record['GPS']['lat']
                     dline['lon'] = record['GPS']['lon']
-                    write_to_csv_file()
-                elif 'Battery' in record:
+
+                if 'Battery' in record:
                     dline['isCharging'] = record['Battery']['isCharging']
                     dline['percentage'] = record['Battery']['percentage']
-                    write_to_csv_file()
-                elif 'CO2 %' in record:
+
+                if 'CO2 %' in record:
                     dline['CO2 %'] = record['CO2 %']
-                    write_to_csv_file()
-                elif 'Preasure Hg' in record:
+
+                if 'Preasure Hg' in record:
                     dline['Preasure Hg'] = record['Preasure Hg']
-                    write_to_csv_file()
-                elif 'Humidity %' in record:
+
+                if 'Humidity %' in record:
                     dline['Humidity %'] = record['Humidity %']
-                    write_to_csv_file()
-                elif 'Temperature C' in record:
+
+                if 'Temperature C' in record:
                     dline['Temperature C'] = record['Temperature C']
-                    write_to_csv_file()
-                elif 'Speed KM' in record:
+
+                if 'Speed KM' in record:
                     dline['Speed KM'] = record['Speed KM']
-                    write_to_csv_file()
-                elif 'date' in record:
+
+                if 'date' in record:
                     dline['date'] = record['date']
-                    write_to_csv_file()
-                elif 'time' in record:
+
+                if 'time' in record:
                     dline['time'] = record['time']
-                    write_to_csv_file()
-                else:
-                    print('else is working ######')
+
+                # write to csv file
+
+                w.writerow(dline)
+
                 # the following line is to reset dline,
-                # location of the line to be confirmed
-                dline = {'unique_trs_id': '', 'lat': '', 'lon': '', 'isCharging': '', 'percentage': '',
+                dline = {'Unique_Trs_ID': '', 'lat': '', 'lon': '', 'isCharging': '', 'percentage': '',
                          'CO2 %': '', 'Preasure Hg': '', 'Humidity %': '', 'Temperature C': '', 'Speed KM': '', 'date': '', 'time': ''}
 
-    with open('./data/iotdata .json', 'w', encoding='utf-8') as f:
-        json.dump(data, f, ensure_ascii=False, indent=4)
+        # read the keys and details csv files and merge them.
 
-    df = pd.read_json('./data/iotdata.json')
-    # print(json_normalize(df, max_level=0))
-    # print(df.to_json(orient='split'))
+        dfk = pd.read_csv('./data/keys.csv')
+        dfd = pd.read_csv('./data/details.csv')
+        print(dfk.head())
+        print(dfk.shape)
+        print(dfd.head())
+        print(dfd.shape)
+        data = pd.merge(dfk, dfd)
+        del data['Unique_Trs_ID']
+        print(data.head())
+        print(data.shape)
 
-    # print(df.to_json(orient='index'))
-    df.to_csv('./data/iotdata.csv')
+        options = map(data, data)
+        print(options)
 
-    return df
+    return data
 
 
 # Note this for callbacks:
