@@ -60,14 +60,10 @@ def Add_Dash(server):
             html.Div(
                 dcc.Dropdown(
                     id='iotdevice',
-                    options=[{'label': name, 'value': name} for name in df['IOT Device'].unique()]
-
-                    # options=[
-                    #     {'label': 'New York City', 'value': 'NYC'},
-                    #     {'label': 'Montreal', 'value': 'MTL'},
-                    #     {'label': 'All', 'value': 'All'}
-                    # ],
-                    # value='All'
+                    options=[
+                        {'label': name, 'value': name} for name in df['IOT Device'].unique()
+                    ],
+                    placeholder="Select IOT Device",
                 ),
                 className='three columns'
             )
