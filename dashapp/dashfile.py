@@ -17,6 +17,7 @@ from dash import Dash
 import dash_table
 import dash_core_components as dcc
 import dash_html_components as html
+from dash.dependencies import Input, Output
 
 import os
 import firebase_admin
@@ -64,6 +65,7 @@ def Add_Dash(server):
                         {'label': name, 'value': name} for name in df['IOT Device'].unique()
                     ],
                     placeholder="Select IOT Device",
+                    value='Co2IOT',
                 ),
                 className='three columns'
             )
@@ -72,19 +74,7 @@ def Add_Dash(server):
         ),
         html.Div([
             html.Div(
-                dcc.Graph(
-                    id='example-graph',
-                    figure={
-                        'data': [
-                            {'x': [0, 1, 2, 3], 'y': [0, 7, 1, 2], 'type': 'line', 'name': 'SF'},
-                            {'x': [0, 1, 2, 3], 'y': [0, 12, 4, 5],
-                                'type': 'line', 'name': u'Montréal'},
-                        ],
-                        'layout': {
-                            'title': 'Dash Data Visualization'
-                        }
-                    }
-                ),
+                dcc.Graph(id='example-graph', animate=True),
                 className='six columns'
             ),
             html.Div(
@@ -100,7 +90,7 @@ def Add_Dash(server):
     # Initialize callbacks after our app is loaded
     # Pass dash_app as a parameter
     # init_callbacks(dash_app)
-
+    init_callbacks(dash_app)
     return dash_app.server
 
 
@@ -173,17 +163,12 @@ def Fetch_Data_FBserver():
 
         dfk = pd.read_csv('./data/keys.csv')
         dfd = pd.read_csv('./data/details.csv')
-        print(dfk.head())
-        print(dfk.shape)
-        print(dfd.head())
-        print(dfd.shape)
+
         data = pd.merge(dfk, dfd)
         del data['Unique_Trs_ID']
-        print(data.head())
-        print(data.shape)
 
-        options = map(data, data)
-        print(options)
+        # options = map(data, data)
+        # print(options)
 
     return data
 
@@ -202,3 +187,32 @@ def Fetch_Data_FBserver():
 #         )
 #     def update_graph():
 #         # ... Insert callback stuff here
+def init_callbacks(dash_app):
+    @dash_app.callback(
+        # ... Callback input/output
+        Output(component_id='example-graph', component_property='figure'),
+        [Input(component_id='iotdevice', component_property='value')]
+    )
+    def update_graph(value):
+        # ... Insert callback stuff here
+        df = Fetch_Data_FBserver()
+        x = []
+        y = []
+        # df.loc[df['IOT Device'] == value]
+        for index, rows in df.loc[df['IOT Device'] == value].iterrows():
+            xvalues = rows.date
+            yvalues = rows['CO2 %']
+            x.append(xvalues)
+            y.append(yvalues)
+        title = 'Data Visualization for ' + value
+        figure = {
+            'data': [
+                {'x': x, 'y': y, 'type': 'line', 'name': value},
+            ],
+            'layout': {
+                'title': title,
+                'xaxis': {'title': 'Date'},
+                'yaxis': {'title': 'CO2 %'}
+            }
+        }
+        return figure
