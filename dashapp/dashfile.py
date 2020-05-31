@@ -68,23 +68,62 @@ def Add_Dash(server):
                     value='Co2IOT',
                 ),
                 className='three columns'
+            ),
+            html.Div(
+                html.Label(
+                    id='lastreadingdate',
+                    children='Test label hjdgfhdj ',
+                    title='Last Reading Date Time'
+                ),
+                className='three columns button'
+            ),
+            html.Div(
+                html.Label(
+                    id='isCharging',
+                    children='Battery is Charging ...'+'True'
+                ),
+                className='three columns button'
+            ),
+            html.Div(
+                html.Label(
+                    id='batterypercent',
+                    children='Battery% ... ' + '95%'
+                ),
+                className='three columns button'
             )
         ],
             className='row'
         ),
         html.Div([
             html.Div(
-                dcc.Graph(id='example-graph', animate=True),
+                children='insert map',
                 className='six columns'
             ),
             html.Div(
                 children='insert table here',
                 className='six columns'
             ),
+        ], className='row'),
+        html.Div([
+            html.Div(
+                dcc.Graph(id='example-graph', animate=True),
+                className='six columns'
+            ),
+            html.Div(
+                dcc.Graph(id='example-graph1', animate=True),
+                className='six columns'
+            ),
+        ], className='row'),
+        html.Div([
+            html.Div(
+                dcc.Graph(id='example-graph2', animate=True),
+                className='six columns'
+            ),
+            html.Div(
+                dcc.Graph(id='example-graph3', animate=True),
+                className='six columns'
+            ),
         ], className='row')
-
-
-
     ])
 
     # Initialize callbacks after our app is loaded
