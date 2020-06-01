@@ -72,22 +72,19 @@ def Add_Dash(server):
             html.Div(
                 html.Label(
                     id='lastreadingdate',
-                    children='Test label hjdgfhdj ',
                     title='Last Reading Date Time'
                 ),
                 className='three columns button'
             ),
             html.Div(
                 html.Label(
-                    id='isCharging',
-                    children='Battery is Charging ...'+'True'
+                    id='isCharging'
                 ),
                 className='three columns button'
             ),
             html.Div(
                 html.Label(
-                    id='batterypercent',
-                    children='Battery% ... ' + '95%'
+                    id='batterypercent'
                 ),
                 className='three columns button'
             )
@@ -229,12 +226,21 @@ def Fetch_Data_FBserver():
 def init_callbacks(dash_app):
     @dash_app.callback(
         # ... Callback input/output
-        Output(component_id='example-graph', component_property='figure'),
+        [Output(component_id='example-graph', component_property='figure'),
+         Output(component_id='example-graph1', component_property='figure'),
+         Output(component_id='example-graph2', component_property='figure'),
+         Output(component_id='example-graph3', component_property='figure'),
+         Output(component_id='lastreadingdate', component_property='children'),
+         Output(component_id='isCharging', component_property='children'),
+         Output(component_id='batterypercent', component_property='children')],
         [Input(component_id='iotdevice', component_property='value')]
     )
     def update_graph(value):
         # ... Insert callback stuff here
         df = Fetch_Data_FBserver()
+        df['date'] = pd.to_datetime(df.date)
+        df.sort_values(by='date')
+
         x = []
         y = []
         # df.loc[df['IOT Device'] == value]
@@ -243,6 +249,7 @@ def init_callbacks(dash_app):
             yvalues = rows['CO2 %']
             x.append(xvalues)
             y.append(yvalues)
+
         title = 'Data Visualization for ' + value
         figure = {
             'data': [
@@ -254,4 +261,14 @@ def init_callbacks(dash_app):
                 'yaxis': {'title': 'CO2 %'}
             }
         }
-        return figure
+        print(df.loc[df['IOT Device'] == value].tail(1))
+
+        lastdate = df['date'].loc[df['IOT Device'] == value].tail(1)
+        lasttime = df['time'].loc[df['IOT Device'] == value].tail(1)
+        batteycharging = df['isCharging'].loc[df['IOT Device'] == value].tail(1)
+        perc = int(df['percentage'].loc[df['IOT Device'] == value].tail(1))
+
+        lastdatetime = str(lastdate) + str(lasttime)
+        print(lastdate)
+        print(batteycharging)
+        return figure, figure, figure, figure, lastdate, batteycharging, perc
