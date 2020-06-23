@@ -12,7 +12,7 @@
 #
 #     return render_template('dashhome.html',title='Plotly Flask Tutorial.',template='home-template',body='This is an example homepage served with Flask.')
 
-
+from datetime import datetime as dt
 from dash import Dash
 import dash_table
 import dash_core_components as dcc
@@ -65,22 +65,39 @@ def Add_Dash(server):
                         {'label': name, 'value': name} for name in df['IOT Device'].unique()
                     ],
                     placeholder="Select IOT Device",
-                    value='Co2IOT',
+                    value='Drone1',
                 ),
-                className='three columns'
+                className='two columns'
+            ),
+            html.Div(
+                dcc.DatePickerSingle(
+                    id='my-date-picker-single',
+                    min_date_allowed=dt(1995, 8, 5),
+                    max_date_allowed=dt(2017, 9, 19),
+                    initial_visible_month=dt(2017, 8, 5),
+                    date=str(dt(2017, 8, 25, 23, 59, 59))
+                ),
+                className='three culumns'
             ),
             html.Div(
                 html.Label(
                     id='lastreadingdate',
-                    title='Last Reading Date Time'
+                    title='Last Reading Time'
                 ),
-                className='three columns button'
+                className='two columns button'
+            ),
+            html.Div(
+                html.Label(
+                    id='lastreadingtime',
+                    title='Last Reading Time'
+                ),
+                className='one column button'
             ),
             html.Div(
                 html.Label(
                     id='isCharging'
                 ),
-                className='three columns button'
+                className='one column button'
             ),
             html.Div(
                 html.Label(
@@ -103,21 +120,21 @@ def Add_Dash(server):
         ], className='row'),
         html.Div([
             html.Div(
-                dcc.Graph(id='example-graph', animate=True),
+                dcc.Graph(id='graph-co2', animate=True),
                 className='six columns'
             ),
             html.Div(
-                dcc.Graph(id='example-graph1', animate=True),
+                dcc.Graph(id='graph-temperature', animate=True),
                 className='six columns'
             ),
         ], className='row'),
         html.Div([
             html.Div(
-                dcc.Graph(id='example-graph2', animate=True),
+                dcc.Graph(id='graph-pressure', animate=True),
                 className='six columns'
             ),
             html.Div(
-                dcc.Graph(id='example-graph3', animate=True),
+                dcc.Graph(id='graph-humidity', animate=True),
                 className='six columns'
             ),
         ], className='row')
@@ -224,18 +241,58 @@ def Fetch_Data_FBserver():
 #     def update_graph():
 #         # ... Insert callback stuff here
 def init_callbacks(dash_app):
+    # Update labels
     @dash_app.callback(
         # ... Callback input/output
-        [Output(component_id='example-graph', component_property='figure'),
-         Output(component_id='example-graph1', component_property='figure'),
-         Output(component_id='example-graph2', component_property='figure'),
-         Output(component_id='example-graph3', component_property='figure'),
-         Output(component_id='lastreadingdate', component_property='children'),
+        [Output(component_id='lastreadingdate', component_property='children'),
+         Output(component_id='lastreadingtime', component_property='children'),
          Output(component_id='isCharging', component_property='children'),
          Output(component_id='batterypercent', component_property='children')],
         [Input(component_id='iotdevice', component_property='value')]
     )
-    def update_graph(value):
+    def update_labels(value):
+        # ... Insert callback stuff here
+        df = Fetch_Data_FBserver()
+        df['date'] = pd.to_datetime(df.date)
+        df.sort_values(by='date')
+
+        # x = []
+        # y = []
+        # # df.loc[df['IOT Device'] == value]
+        # for index, rows in df.loc[df['IOT Device'] == value].iterrows():
+        #     xvalues = rows.date
+        #     yvalues = rows['CO2 %']
+        #     x.append(xvalues)
+        #     y.append(yvalues)
+        #
+        # title = 'Data Visualization for ' + value
+        # figure = {
+        #     'data': [
+        #         {'x': x, 'y': y, 'type': 'line', 'name': value},
+        #     ],
+        #     'layout': {
+        #         'title': title,
+        #         'xaxis': {'title': 'Date'},
+        #         'yaxis': {'title': 'CO2 %'}
+        #     }
+        # }
+        #
+        # print(df.loc[df['IOT Device'] == value].tail(1))
+
+        lastdate = df['date'].loc[df['IOT Device'] == value].iloc[-1]
+        lasttime = df['time'].loc[df['IOT Device'] == value].iloc[-1]
+        batteycharging = str(df['isCharging'].loc[df['IOT Device'] == value].iloc[-1])
+        perc = int(df['percentage'].loc[df['IOT Device'] == value].iloc[-1])
+
+        return lastdate, lasttime, batteycharging, perc
+
+    # Update CO2 Graph
+    @dash_app.callback(
+        # ... Callback input/output
+        Output(component_id='graph-co2', component_property='figure'),
+        [Input(component_id='iotdevice', component_property='value')]
+    )
+    def update_co2(value):
         # ... Insert callback stuff here
         df = Fetch_Data_FBserver()
         df['date'] = pd.to_datetime(df.date)
@@ -243,32 +300,173 @@ def init_callbacks(dash_app):
 
         x = []
         y = []
+        print(df.loc[df['IOT Device'] == value])
+        print("***************************************")
         # df.loc[df['IOT Device'] == value]
         for index, rows in df.loc[df['IOT Device'] == value].iterrows():
-            xvalues = rows.date
+            xvalues = rows.time
             yvalues = rows['CO2 %']
             x.append(xvalues)
             y.append(yvalues)
 
         title = 'Data Visualization for ' + value
-        figure = {
-            'data': [
-                {'x': x, 'y': y, 'type': 'line', 'name': value},
-            ],
-            'layout': {
-                'title': title,
-                'xaxis': {'title': 'Date'},
-                'yaxis': {'title': 'CO2 %'}
+        if len(y) == 0:
+            figure = {
+                'data': [],
+                'layout': {
+                    'title': title,
+                    'xaxis': {'title': 'time'},
+                    'yaxis': {'title': 'CO2 %'}
+                }
             }
-        }
-        print(df.loc[df['IOT Device'] == value].tail(1))
+        else:
+            figure = {
+                'data': [
+                    {'x': x, 'y': y, 'type': 'line', 'name': value},
+                ],
+                'layout': {
+                    'title': title,
+                    'xaxis': {'title': 'Time'},
+                    'yaxis': {'title': 'CO2 %'}
+                }
+            }
+        return figure
 
-        lastdate = df['date'].loc[df['IOT Device'] == value].tail(1)
-        lasttime = df['time'].loc[df['IOT Device'] == value].tail(1)
-        batteycharging = df['isCharging'].loc[df['IOT Device'] == value].tail(1)
-        perc = int(df['percentage'].loc[df['IOT Device'] == value].tail(1))
+    # Update Temperature C Graph
+    @dash_app.callback(
+        # ... Callback input/output
+        Output(component_id='graph-temperature', component_property='figure'),
+        [Input(component_id='iotdevice', component_property='value')]
+    )
+    def update_temperature(value):
+        # ... Insert callback stuff here
+        df = Fetch_Data_FBserver()
+        df['date'] = pd.to_datetime(df.date)
+        df.sort_values(by='date')
 
-        lastdatetime = str(lastdate) + str(lasttime)
-        print(lastdate)
-        print(batteycharging)
-        return figure, figure, figure, figure, lastdate, batteycharging, perc
+        x = []
+        y = []
+        print(df.loc[df['IOT Device'] == value])
+        print("***************************************")
+        # df.loc[df['IOT Device'] == value]
+        for index, rows in df.loc[df['IOT Device'] == value].iterrows():
+            xvalues = rows.time
+            yvalues = rows['Temperature C']
+            x.append(xvalues)
+            y.append(yvalues)
+
+        title = 'Data Visualization for ' + value
+        if len(y) == 0:
+            figure = {
+                'data': [],
+                'layout': {
+                    'title': title,
+                    'xaxis': {'title': 'Time'},
+                    'yaxis': {'title': 'Temperature C'}
+                }
+            }
+        else:
+            figure = {
+                'data': [
+                    {'x': x, 'y': y, 'type': 'line', 'name': value},
+                ],
+                'layout': {
+                    'title': title,
+                    'xaxis': {'title': 'Time'},
+                    'yaxis': {'title': 'Temperature C'}
+                }
+            }
+
+        return figure
+
+    # Update Preasure Hg Graph
+    @dash_app.callback(
+        # ... Callback input/output
+        Output(component_id='graph-pressure', component_property='figure'),
+        [Input(component_id='iotdevice', component_property='value')]
+    )
+    def update_pressure(value):
+        # ... Insert callback stuff here
+        df = Fetch_Data_FBserver()
+        df['date'] = pd.to_datetime(df.date)
+        df.sort_values(by='date')
+
+        x = []
+        y = []
+        print(df.loc[df['IOT Device'] == value])
+        print("***************************************")
+        # df.loc[df['IOT Device'] == value]
+        for index, rows in df.loc[df['IOT Device'] == value].iterrows():
+            xvalues = rows.time
+            yvalues = rows['Preasure Hg']
+            x.append(xvalues)
+            y.append(yvalues)
+
+        title = 'Data Visualization for ' + value
+        if len(y) == 0:
+            figure = {
+                'data': [],
+                'layout': {
+                    'title': title,
+                    'xaxis': {'title': 'Time'},
+                    'yaxis': {'title': 'Preasure Hg'}
+                }
+            }
+        else:
+            figure = {
+                'data': [
+                    {'x': x, 'y': y, 'type': 'line', 'name': value},
+                ],
+                'layout': {
+                    'title': title,
+                    'xaxis': {'title': 'Time'},
+                    'yaxis': {'title': 'Preasure Hg'}
+                }
+            }
+        return figure
+
+    # Update Humidity % Graph
+    @dash_app.callback(
+        # ... Callback input/output
+        Output(component_id='graph-humidity', component_property='figure'),
+        [Input(component_id='iotdevice', component_property='value')]
+    )
+    def update_humidity(value):
+        # ... Insert callback stuff here
+        df = Fetch_Data_FBserver()
+        df['date'] = pd.to_datetime(df.date)
+        df.sort_values(by='date')
+
+        x = []
+        y = []
+        print(df.loc[df['IOT Device'] == value])
+        print("***************************************")
+        # df.loc[df['IOT Device'] == value]
+        for index, rows in df.loc[df['IOT Device'] == value].iterrows():
+            xvalues = rows.time
+            yvalues = rows['Humidity %']
+            x.append(xvalues)
+            y.append(yvalues)
+
+        title = 'Data Visualization for ' + value
+        if len(y) == 0:
+            figure = {
+                'data': [],
+                'layout': {
+                    'title': title,
+                    'xaxis': {'title': 'Time'},
+                    'yaxis': {'title': 'Humidity %'}
+                }
+            }
+        else:
+            figure = {
+                'data': [
+                    {'x': x, 'y': y, 'type': 'line', 'name': value},
+                ],
+                'layout': {
+                    'title': title,
+                    'xaxis': {'title': 'Time'},
+                    'yaxis': {'title': 'Humidity %'}
+                }
+            }
+        return figure
