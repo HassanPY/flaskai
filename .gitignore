@@ -3,6 +3,7 @@ __pycache__/
 venv/
 venv_old/
 flaskai-dec7b-firebase-adminsdk-9o96s-1b92419593.json
+.vscode
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
